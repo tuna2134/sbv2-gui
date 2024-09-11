@@ -1,13 +1,24 @@
+use hf_hub::api::sync::Api;
 use once_cell::sync::Lazy;
-use sbv2_core::tts::{TTSIdent, TTSModelHolder};
+use sbv2_core::tts::TTSModelHolder;
 use std::{env, fs, sync::Arc};
 use tokio::fs as tfs;
 use tokio::sync::{Mutex, MutexGuard};
 
+static MODELS_DIR: Lazy<String> =
+    Lazy::new(|| env::var("ROOT_DIR").unwrap_or("models".to_string()));
 fn load_model_holder() -> anyhow::Result<TTSModelHolder> {
+    let api = Api::new()?;
+    fs::create_dir(MODELS_DIR.clone()).ok();
     Ok(TTSModelHolder::new(
-        &fs::read(env::var("BERT_MODEL_PATH").unwrap_or("models/deberta.onnx".to_string()))?,
-        &fs::read(env::var("TOKENIZER_PATH").unwrap_or("models/tokenizer.json".to_string()))?,
+        &fs::read(
+            api.model("googlefan/sbv2_onnx_models".to_string())
+                .get("deberta.onnx")?,
+        )?,
+        &fs::read(
+            api.model("googlefan/sbv2_onnx_models".to_string())
+                .get("tokenizer.json")?,
+        )?,
     )?)
 }
 
@@ -15,17 +26,22 @@ static MODEL_HOLDER: Lazy<Option<Arc<Mutex<TTSModelHolder>>>> =
     Lazy::new(|| load_model_holder().ok().map(|m| Arc::new(Mutex::new(m))));
 
 fn get_model_holder() -> Result<Arc<Mutex<TTSModelHolder>>, String> {
-    MODEL_HOLDER.ok_or("Seems that loading bert and tokenizer has failed.".to_string())
+    MODEL_HOLDER
+        .clone()
+        .ok_or("Seems that loading bert and tokenizer has failed.".to_string())
 }
 
 #[tauri::command(async)]
 pub async fn reload_models() -> Result<(), String> {
-    let lock = get_model_holder()?.lock().await;
+    let lock = get_model_holder()?;
+    let mut lock = lock.lock().await;
     for m in lock.models() {
         lock.unload(m);
     }
-    let models = env::var("MODELS_PATH").unwrap_or("models".to_string());
-    let mut f = tfs::read_dir(&models).await?;
+    let models = MODELS_DIR.clone();
+    let mut f = tfs::read_dir(&models)
+        .await
+        .map_err(|_| "models dir cannot be read".to_string())?;
     let mut entries = vec![];
     while let Ok(Some(e)) = f.next_entry().await {
         let name = e.file_name().to_string_lossy().to_string();
@@ -44,12 +60,14 @@ pub async fn reload_models() -> Result<(), String> {
             match tfs::read(format!("{models}/style_vectors_{entry}.json")).await {
                 Ok(b) => b,
                 Err(e) => {
+                    println!("{entry} :{e}");
                     continue;
                 }
             };
         let vits2_bytes = match tfs::read(format!("{models}/model_{entry}.onnx")).await {
             Ok(b) => b,
             Err(e) => {
+                println!("{entry} :{e}");
                 continue;
             }
         };
@@ -80,21 +98,23 @@ fn synthesize_inner(
 }
 
 #[tauri::command(async)]
-async fn synthesize(
+pub async fn synthesize(
     ident: String,
     text: String,
     sdp_ratio: f32,
     length_scale: f32,
 ) -> Result<Vec<u8>, String> {
-    let lock = get_model_holder()?.lock().await;
+    let lock = get_model_holder()?;
+    let lock = lock.lock().await;
     let buffer = match synthesize_inner(lock, ident, text, sdp_ratio, length_scale) {
         Ok(b) => b,
-        Err(e) => Err(e.to_string()),
+        Err(e) => return Err(e.to_string()),
     };
     Ok(buffer)
 }
 #[tauri::command(async)]
-async fn models() -> Result<Vec<String>, String> {
-    let lock = get_model_holder()?.lock().await;
+pub async fn models() -> Result<Vec<String>, String> {
+    let lock = get_model_holder()?;
+    let lock = lock.lock().await;
     Ok(lock.models())
 }

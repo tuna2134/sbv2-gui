@@ -1,53 +1,143 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
-import "./App.css";
+import { useEffect, useState } from "react";
+import { reloadModels, getModels, synthesize } from "./typing";
+import { Button } from "./components/ui/button";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "./components/ui/select";
+import { Label } from "./components/ui/label";
+import { Textarea } from "./components/ui/textarea";
+import { Slider } from "./components/ui/slider";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
-  return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-
-      <p>{greetMsg}</p>
-    </div>
-  );
+	const [models, setModels] = useState<string[]>([]);
+	const [model, setModel] = useState<string | null>(null);
+	const [text, setText] = useState<string>("こんにちは。");
+	const [speed, setSpeed] = useState(1);
+	const [sdpRatio, setSdpRatio] = useState(0);
+	const [reloading, setReloading] = useState(false);
+	const [inSynthesize, setInSynthesize] = useState(false);
+	const [audio, setAudio] = useState<string | null>(null);
+	useEffect(() => {
+		(async () => {
+			await reloadModels();
+			setModels(await getModels());
+		})();
+	}, []);
+	if (reloading) {
+		return (
+			<div className="flex min-h-[100vh] justify-center items-center">
+				<p className="text-lg">読み込み中</p>
+			</div>
+		);
+	}
+	if (models.length == 0) {
+		return (
+			<div className="flex min-h-[100vh] justify-center items-center">
+				<p className="text-lg">モデルをmodelsに配置してください。</p>
+			</div>
+		);
+	}
+	return (
+		<div className="min-h-[100vh] p-20">
+			<Label htmlFor="model">使用するモデル</Label>
+			<Select name="model" onValueChange={(value) => setModel(value)}>
+				<SelectTrigger className="w-1/3 md:w-1/4">
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					{models.map((m) => {
+						return (
+							<SelectItem value={m} key={m}>
+								{m[0].toUpperCase() + m.slice(1).toLowerCase()}
+							</SelectItem>
+						);
+					})}
+				</SelectContent>
+			</Select>
+			<Label htmlFor="text">テキスト</Label>
+			<Textarea
+				name="text"
+				onChange={(e) => setText(e.currentTarget.value)}
+				defaultValue="こんにちは。"
+			/>
+			<Label htmlFor="speed">
+				話速 {"("}
+				{speed}
+				{")"}
+			</Label>
+			<Slider
+				defaultValue={[1.0]}
+				max={10.0}
+				min={0.25}
+				step={0.05}
+				name="speed"
+				className="mb-6 mt-4"
+				onValueChange={(value) => setSpeed(value[0])}
+			/>
+			<Label htmlFor="sdpratio">
+				抑揚 {"("}
+				{sdpRatio}
+				{")"}
+			</Label>
+			<Slider
+				defaultValue={[0.0]}
+				max={1.0}
+				min={0.0}
+				step={0.05}
+				name="sdpratio"
+				className="mb-6 mt-4"
+				onValueChange={(value) => setSdpRatio(value[0])}
+			/>
+			{audio && <audio controls src={audio} autoPlay></audio>}
+			<div className="flex mt-2 gap-2">
+				<Button
+					onClick={async () => {
+						setReloading(true);
+						await reloadModels();
+						setModels(await getModels());
+						setModel(null);
+						setReloading(false);
+					}}
+				>
+					再読み込み
+				</Button>
+				<Button
+					disabled={inSynthesize}
+					onClick={async () => {
+						if (audio) {
+							URL.revokeObjectURL(audio);
+						}
+						setInSynthesize(true);
+						if (!text.length || !model || reloading) {
+							setInSynthesize(false);
+							return;
+						}
+						const res = new Blob(
+							[
+								new Uint8Array(
+									await synthesize(
+										model,
+										text,
+										sdpRatio,
+										1 / speed,
+									),
+								),
+							],
+							{ type: "audio/wav" },
+						);
+						setAudio(URL.createObjectURL(res));
+						setInSynthesize(false);
+					}}
+				>
+					合成
+				</Button>
+			</div>
+		</div>
+	);
 }
 
 export default App;
