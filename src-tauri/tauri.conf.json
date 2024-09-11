@@ -6,7 +6,7 @@
 		"distDir": "../dist"
 	},
 	"package": {
-		"productName": "sbv2_gui",
+		"productName": "sbv2-gui",
 		"version": "0.0.0"
 	},
 	"tauri": {
@@ -19,7 +19,7 @@
 		},
 		"windows": [
 			{
-				"title": "sbv2_gui",
+				"title": "Style Bert VITS2 GUI",
 				"width": 800,
 				"height": 600
 			}
@@ -30,7 +30,7 @@
 		"bundle": {
 			"active": true,
 			"targets": "all",
-			"identifier": "jp.tuna2134.sbv2_gui",
+			"identifier": "jp.tuna2134.sbv2-gui",
 			"icon": [
 				"icons/32x32.png",
 				"icons/128x128.png",
