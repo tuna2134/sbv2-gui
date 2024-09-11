@@ -42,14 +42,17 @@ jobs:
         run: npm i -g pnpm
       - name: install frontend dependencies
         run: pnpm install
-      - name: Set short git commit SHA
-        id: vars
+      - name: Get short SHA(windows)
+        if: matrix.platform == 'windows-latest'
+        run: echo "SHORT_SHA=$("${{ github.sha }}".SubString(0, 8))" >> $env:GITHUB_ENV
+      - name: Get short SHA(non windows)
+        if: matrix.platform != 'windows-latest'
         run: |
           calculatedSha=$(git rev-parse --short ${{ github.sha }})
-          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+          echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ env.COMMIT_SHORT_SHA }}
-          releaseName: ${{ env.COMMIT_SHORT_SHA }}
+          tagName: ${{ env.SHORT_SHA }}
+          releaseName: ${{ env.SHORT_SHA }}
