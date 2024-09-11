@@ -23,8 +23,10 @@ function App() {
 	const [audio, setAudio] = useState<string | null>(null);
 	useEffect(() => {
 		(async () => {
+			setReloading(true);
 			await reloadModels();
 			setModels(await getModels());
+			setReloading(false);
 		})();
 	}, []);
 	if (reloading) {
@@ -37,7 +39,9 @@ function App() {
 	if (models.length == 0) {
 		return (
 			<div className="flex min-h-[100vh] justify-center items-center">
-				<p className="text-lg">モデルをmodelsに配置してください。</p>
+				<p className="text-lg">
+					モデルを~/AppData/Local/sbv2-gui/modelsに配置してください。
+				</p>
 			</div>
 		);
 	}
@@ -79,7 +83,7 @@ function App() {
 				onValueChange={(value) => setSpeed(value[0])}
 			/>
 			<Label htmlFor="sdpratio">
-				抑揚 {"("}
+				SDP {"("}
 				{sdpRatio}
 				{")"}
 			</Label>
