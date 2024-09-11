@@ -3013,11 +3013,15 @@ dependencies = [
 name = "sbv2_gui"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "dotenvy",
+ "once_cell",
  "sbv2_core",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
+ "tokio",
 ]
 
 [[package]]
