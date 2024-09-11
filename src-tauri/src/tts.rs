@@ -55,7 +55,7 @@ pub async fn reload_models() -> Result<(), String> {
             );
         } else if name.ends_with(".sbv2") {
             let entry = &name[..name.len() - 5];
-            let sbv2_bytes = match fs::read(format!("{models}/{entry}.sbv2")).await {
+            let sbv2_bytes = match tfs::read(format!("{models}/{entry}.sbv2")).await {
                 Ok(b) => b,
                 Err(e) => {
                     println!("Error loading sbv2_bytes from file {entry}: {e}");
