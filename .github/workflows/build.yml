@@ -46,7 +46,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          releaseName: ${{ github.sha }}
-          releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
-          releaseId: ${{ github.sha }}
+          tagName: ${{ github.sha }}
