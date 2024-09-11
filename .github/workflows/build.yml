@@ -47,3 +47,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.sha }}
+          releaseName: ${{ github.sha }}
