@@ -1,1 +1,2 @@
-# sbv2-gui
+# SBV2 GUI
+作成中
