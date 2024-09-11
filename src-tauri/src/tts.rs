@@ -53,6 +53,18 @@ pub async fn reload_models() -> Result<(), String> {
                     .iter()
                     .collect::<String>(),
             );
+        } else if name.ends_with(".sbv2") {
+            let entry = &name[..name.len() - 5];
+            let sbv2_bytes = match fs::read(format!("{models}/{entry}.sbv2")).await {
+                Ok(b) => b,
+                Err(e) => {
+                    println!("Error loading sbv2_bytes from file {entry}: {e}");
+                    continue;
+                }
+            };
+            if let Err(e) = tts_model.load_sbv2file(&entry, sbv2_bytes) {
+                println!("Error loading {entry}: {e}");
+            };
         }
     }
     for entry in entries {
