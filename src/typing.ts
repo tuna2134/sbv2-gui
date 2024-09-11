@@ -16,3 +16,7 @@ export async function synthesize(
 ): Promise<number[]> {
 	return invoke("synthesize", { ident, text, sdpRatio, lengthScale });
 }
+
+export async function open(): Promise<string> {
+	return invoke("open");
+}

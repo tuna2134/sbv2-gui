@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { reloadModels, getModels, synthesize } from "./typing";
+import { reloadModels, getModels, synthesize, open } from "./typing";
 import { Button } from "./components/ui/button";
 import {
 	Select,
@@ -40,13 +40,21 @@ function App() {
 		return (
 			<div className="flex min-h-[100vh] justify-center items-center">
 				<p className="text-lg">
-					モデルを~/AppData/Local/sbv2-gui/modelsに配置してください。
+					モデルを
+					<a className="text-slate-600" onClick={() => open()}>
+						~/AppData/Local/sbv2-gui/models
+					</a>
+					に配置してください。
 				</p>
 			</div>
 		);
 	}
 	return (
 		<div className="min-h-[100vh] p-20">
+			<a className="text-slate-600" onClick={() => open()}>
+				クリックしてモデルファイルを開く
+			</a>
+			<br />
 			<Label htmlFor="model">使用するモデル</Label>
 			<Select name="model" onValueChange={(value) => setModel(value)}>
 				<SelectTrigger className="w-1/3 md:w-1/4">
