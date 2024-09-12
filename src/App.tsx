@@ -17,7 +17,7 @@ function App() {
 	const [model, setModel] = useState<string | null>(null);
 	const [text, setText] = useState<string>("こんにちは。");
 	const [speed, setSpeed] = useState(1);
-	const [sdpRatio, setSdpRatio] = useState(0);
+	const [sdpRatio, setSdpRatio] = useState(0.4);
 	const [reloading, setReloading] = useState(false);
 	const [inSynthesize, setInSynthesize] = useState(false);
 	const [audio, setAudio] = useState<string | null>(null);
@@ -32,13 +32,17 @@ function App() {
 	if (reloading) {
 		return (
 			<div className="flex min-h-[100vh] justify-center items-center">
-				<p className="text-lg">読み込み中</p>
+				<div>
+					<p className="text-lg">読み込み中</p>
+					<br />
+					<p>初回は1GBほどのダウンロードが発生します</p>
+				</div>
 			</div>
 		);
 	}
 	if (models.length == 0) {
 		return (
-			<div className="flex min-h-[100vh] justify-center items-center">
+			<div className="flex min-h-[100vh] justify-center items-center flex-col">
 				<p className="text-lg">
 					モデルを
 					<a className="text-slate-600" onClick={() => open()}>
@@ -46,15 +50,25 @@ function App() {
 					</a>
 					に配置してください。
 				</p>
+				<div className="flex mt-2 gap-2">
+					<Button
+						onClick={async () => {
+							setReloading(true);
+							await reloadModels();
+							setModels(await getModels());
+							setModel(null);
+							setReloading(false);
+						}}
+					>
+						再読み込み
+					</Button>
+					<Button onClick={() => open()}>モデルファイルを開く</Button>
+				</div>
 			</div>
 		);
 	}
 	return (
 		<div className="min-h-[100vh] p-20">
-			<a className="text-slate-600" onClick={() => open()}>
-				クリックしてモデルファイルを開く
-			</a>
-			<br />
 			<Label htmlFor="model">使用するモデル</Label>
 			<Select name="model" onValueChange={(value) => setModel(value)}>
 				<SelectTrigger className="w-1/3 md:w-1/4">
@@ -96,7 +110,7 @@ function App() {
 				{")"}
 			</Label>
 			<Slider
-				defaultValue={[0.0]}
+				defaultValue={[0.4]}
 				max={1.0}
 				min={0.0}
 				step={0.05}
@@ -147,6 +161,7 @@ function App() {
 				>
 					合成
 				</Button>
+				<Button onClick={() => open()}>モデルファイルを開く</Button>
 			</div>
 		</div>
 	);
