@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { reloadModels, getModels, synthesize, open } from "./typing";
-import { Button } from "./components/ui/button";
+import { Button } from "~/components/ui/button";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "./components/ui/select";
-import { Label } from "./components/ui/label";
-import { Textarea } from "./components/ui/textarea";
-import { Slider } from "./components/ui/slider";
+} from "~/components/ui/select";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
+import { Slider } from "~/components/ui/slider";
 
 function App() {
 	const [models, setModels] = useState<string[]>([]);
@@ -21,14 +21,33 @@ function App() {
 	const [reloading, setReloading] = useState(false);
 	const [inSynthesize, setInSynthesize] = useState(false);
 	const [audio, setAudio] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
 	useEffect(() => {
 		(async () => {
 			setReloading(true);
-			await reloadModels();
-			setModels(await getModels());
+			try {
+				await reloadModels();
+				setModels(await getModels());
+			} catch (e) {
+				setError(String(e));
+			}
 			setReloading(false);
 		})();
 	}, []);
+	if (error) {
+		return (
+			<div className="flex min-h-[100vh] justify-center items-center flex-col">
+				<p className="text-lg">エラー: {error}</p>
+				<Button
+					onClick={() => {
+						setError(null);
+					}}
+				>
+					理解した
+				</Button>
+			</div>
+		);
+	}
 	if (reloading) {
 		return (
 			<div className="flex min-h-[100vh] justify-center items-center">
@@ -54,8 +73,12 @@ function App() {
 					<Button
 						onClick={async () => {
 							setReloading(true);
-							await reloadModels();
-							setModels(await getModels());
+							try {
+								await reloadModels();
+								setModels(await getModels());
+							} catch (e) {
+								setError(String(e));
+							}
 							setModel(null);
 							setReloading(false);
 						}}
@@ -123,8 +146,12 @@ function App() {
 				<Button
 					onClick={async () => {
 						setReloading(true);
-						await reloadModels();
-						setModels(await getModels());
+						try {
+							await reloadModels();
+							setModels(await getModels());
+						} catch (e) {
+							setError(String(e));
+						}
 						setModel(null);
 						setReloading(false);
 					}}
@@ -142,20 +169,24 @@ function App() {
 							setInSynthesize(false);
 							return;
 						}
-						const res = new Blob(
-							[
-								new Uint8Array(
-									await synthesize(
-										model,
-										text,
-										sdpRatio,
-										1 / speed,
+						try {
+							const res = new Blob(
+								[
+									new Uint8Array(
+										await synthesize(
+											model,
+											text,
+											sdpRatio,
+											1 / speed,
+										),
 									),
-								),
-							],
-							{ type: "audio/wav" },
-						);
-						setAudio(URL.createObjectURL(res));
+								],
+								{ type: "audio/wav" },
+							);
+							setAudio(URL.createObjectURL(res));
+						} catch (e) {
+							setError(String(e));
+						}
 						setInSynthesize(false);
 					}}
 				>

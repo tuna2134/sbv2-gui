@@ -27,3 +27,8 @@ open = "5.3.0"
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+lto = true
+debug = false
+strip = true

@@ -7,6 +7,7 @@ use tokio::sync::{Mutex, MutexGuard};
 
 static MODELS_DIR: Lazy<String> =
     Lazy::new(|| env::var("ROOT_DIR").unwrap_or("models".to_string()));
+
 fn load_model_holder() -> anyhow::Result<TTSModelHolder> {
     let api = Api::new()?;
     fs::create_dir(MODELS_DIR.clone()).ok();
