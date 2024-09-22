@@ -11,12 +11,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- platform: 'macos-latest' # for Arm based macs (M1 and above).
-          #  args: '--target aarch64-apple-darwin'
-          #- platform: 'macos-latest' # for Intel based macs.
+          - platform: 'macos-latest' # for Arm based macs (M1 and above).
+            args: '--target aarch64-apple-darwin'
+          # - platform: 'macos-latest' # for Intel based macs.
           #  args: '--target x86_64-apple-darwin'
-          #- platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
-          #  args: ''
+          - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
+            args: ''
           - platform: 'windows-latest'
             args: ''
 
@@ -47,12 +47,11 @@ jobs:
         run: echo "SHORT_SHA=$("${{ github.sha }}".SubString(0, 8))" >> $env:GITHUB_ENV
       - name: Get short SHA(non windows)
         if: matrix.platform != 'windows-latest'
-        run: |
-          calculatedSha=$(git rev-parse --short ${{ github.sha }})
-          echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+        run: echo "SHORT_SHA=${GITHUB_SHA:0:8}" >> $GITHUB_ENV
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ env.SHORT_SHA }}
           releaseName: ${{ env.SHORT_SHA }}
+          args: ${{ matrix.args }}
