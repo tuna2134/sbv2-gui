@@ -2578,7 +2578,7 @@ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 [[package]]
 name = "ort"
 version = "2.0.0-rc.6"
-source = "git+https://github.com/pykeio/ort.git#abd527b6a1df8f566c729a9c4398bdfd185d652f"
+source = "git+https://github.com/pykeio/ort.git#cf1be8637c084baa8c4ed3493530d2608b6b898f"
 dependencies = [
  "half",
  "libloading",
@@ -2590,7 +2590,7 @@ dependencies = [
 [[package]]
 name = "ort-sys"
 version = "2.0.0-rc.6"
-source = "git+https://github.com/pykeio/ort.git#abd527b6a1df8f566c729a9c4398bdfd185d652f"
+source = "git+https://github.com/pykeio/ort.git#cf1be8637c084baa8c4ed3493530d2608b6b898f"
 dependencies = [
  "flate2",
  "pkg-config",
@@ -2819,9 +2819,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pkg-config"
-version = "0.3.30"
+version = "0.3.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d231b230927b5e4ad203db57bbcbee2802f6bce620b1e4a9024a07d94e2907ec"
+checksum = "953ec861398dccce10c670dfeaf3ec4911ca479e9c02154b3a215178c5f566f2"
 
 [[package]]
 name = "plist"
@@ -3239,7 +3239,7 @@ dependencies = [
 [[package]]
 name = "sbv2_core"
 version = "0.1.4"
-source = "git+https://github.com/tuna2134/sbv2-api#290fb37c162179afc61fd267735b26ce580ab28a"
+source = "git+https://github.com/tuna2134/sbv2-api#1373aef4b2a9a49a0879a743354e78dc47a1e350"
 dependencies = [
  "anyhow",
  "dotenvy",
@@ -3997,18 +3997,18 @@ checksum = "8eaa81235c7058867fa8c0e7314f33dcce9c215f535d1913822a2b3f5e289f3c"
 
 [[package]]
 name = "thiserror"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0342370b38b6a11b6cc11d6a805569958d54cfa061a29969c3b5ce2ea405724"
+checksum = "d50af8abc119fb8bb6dbabcfa89656f46f84aa0ac7688088608076ad2b459a84"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4558b58466b9ad7ca0f102865eccc95938dca1a74a856f2b57b6629050da261"
+checksum = "08904e7672f5eb876eaaf87e0ce17857500934f4981c4a0ab2b4aa98baac7fc3"
 dependencies = [
  "proc-macro2",
  "quote",

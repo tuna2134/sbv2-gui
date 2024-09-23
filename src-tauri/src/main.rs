@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod tts;
+use std::env;
+
 use hf_hub::api::sync::Api;
 
 #[tauri::command]
@@ -17,7 +19,13 @@ fn main() {
         Api::new()
             .unwrap()
             .model("googlefan/sbv2_onnx_models".to_string())
-            .get("onnxruntime.dll")
+            .get(if cfg!(windows) {
+                "onnxruntime.dll"
+            } else if cfg!(target_os = "macos") {
+                "libonnxruntime.dylib"
+            } else {
+                "libonnxruntime.so"
+            })
             .unwrap()
             .to_string_lossy()
             .to_string(),
