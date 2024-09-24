@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { reloadModels, getModels, synthesize, open } from "./typing";
+import { reloadModels, getModels, synthesize, open, getPath } from "./typing";
 import { Button } from "~/components/ui/button";
 import {
 	Select,
@@ -22,7 +22,15 @@ function App() {
 	const [inSynthesize, setInSynthesize] = useState(false);
 	const [audio, setAudio] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [path, setPath] = useState<string | null>(null);
 	useEffect(() => {
+		(async () => {
+			try {
+				setPath(await getPath());
+			} catch (e) {
+				setError(String(e));
+			}
+		})();
 		(async () => {
 			setReloading(true);
 			try {
@@ -65,7 +73,7 @@ function App() {
 				<p className="text-lg">
 					モデルを
 					<a className="text-slate-600" onClick={() => open()}>
-						~/AppData/Local/sbv2-gui/models
+						{path}
 					</a>
 					に配置してください。
 				</p>

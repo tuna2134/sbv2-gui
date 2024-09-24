@@ -6,12 +6,17 @@ use std::env;
 use hf_hub::api::sync::Api;
 
 #[tauri::command]
-fn open() {
-    open::that(format!(
-        "C:/Users/{}/AppData/Local/sbv2-gui/models",
-        whoami::username()
-    ))
-    .ok();
+fn open() -> Result<(), String> {
+    let dir = env::current_dir().map_err(|e| e.to_string())?;
+    open::that(dir.join("models")).ok();
+    Ok(())
+}
+
+#[tauri::command]
+fn path() -> Result<String, String> {
+    env::current_dir()
+        .map(|p| p.to_string_lossy().to_string())
+        .map_err(|e| e.to_string())
 }
 
 fn main() {
@@ -38,6 +43,7 @@ fn main() {
             tts::synthesize,
             tts::models,
             open,
+            path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

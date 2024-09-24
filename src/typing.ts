@@ -7,6 +7,9 @@ export async function reloadModels() {
 export async function getModels(): Promise<string[]> {
 	return invoke("models");
 }
+export async function getPath(): Promise<string> {
+	return invoke("path");
+}
 
 export async function synthesize(
 	ident: string,
