@@ -7,15 +7,21 @@ use hf_hub::api::sync::Api;
 
 #[tauri::command]
 fn open() -> Result<(), String> {
-    let dir = env::current_dir().map_err(|e| e.to_string())?;
-    open::that(dir.join("models")).ok();
+    let dir = env::current_exe().map_err(|e| e.to_string())?;
+    open::that(dir.parent().unwrap().join("models")).ok();
     Ok(())
 }
 
 #[tauri::command]
 fn path() -> Result<String, String> {
-    env::current_dir()
-        .map(|p| p.to_string_lossy().to_string())
+    env::current_exe()
+        .map(|p| {
+            p.parent()
+                .unwrap()
+                .join("models")
+                .to_string_lossy()
+                .to_string()
+        })
         .map_err(|e| e.to_string())
 }
 
