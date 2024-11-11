@@ -78,6 +78,7 @@ function App() {
 					に配置してください。
 				</p>
 				<div className="flex mt-2 gap-2">
+					<Button onClick={() => open()}>モデルファイルを開く</Button>
 					<Button
 						onClick={async () => {
 							setReloading(true);
@@ -93,7 +94,6 @@ function App() {
 					>
 						再読み込み
 					</Button>
-					<Button onClick={() => open()}>モデルファイルを開く</Button>
 				</div>
 			</div>
 		);
@@ -152,22 +152,8 @@ function App() {
 			{audio && <audio controls src={audio} autoPlay></audio>}
 			<div className="flex mt-2 gap-2">
 				<Button
-					onClick={async () => {
-						setReloading(true);
-						try {
-							await reloadModels();
-							setModels(await getModels());
-						} catch (e) {
-							setError(String(e));
-						}
-						setModel(null);
-						setReloading(false);
-					}}
-				>
-					再読み込み
-				</Button>
-				<Button
 					disabled={inSynthesize}
+					variant="destructive"
 					onClick={async () => {
 						if (audio) {
 							URL.revokeObjectURL(audio);
@@ -201,6 +187,21 @@ function App() {
 					合成
 				</Button>
 				<Button onClick={() => open()}>モデルファイルを開く</Button>
+				<Button
+					onClick={async () => {
+						setReloading(true);
+						try {
+							await reloadModels();
+							setModels(await getModels());
+						} catch (e) {
+							setError(String(e));
+						}
+						setModel(null);
+						setReloading(false);
+					}}
+				>
+					再読み込み
+				</Button>
 			</div>
 		</div>
 	);
