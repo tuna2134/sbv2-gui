@@ -29,13 +29,13 @@ fn main() {
     ort::init_from(
         Api::new()
             .unwrap()
-            .model("googlefan/sbv2_onnx_models".to_string())
+            .model("neody/sbv2-api-assets".to_string())
             .get(if cfg!(windows) {
-                "onnxruntime.dll"
+                "onnxruntime/onnxruntime.dll"
             } else if cfg!(target_os = "macos") {
-                "libonnxruntime.dylib"
+                "onnxruntime/libonnxruntime.dylib"
             } else {
-                "libonnxruntime.so"
+                "onnxruntime/libonnxruntime.so"
             })
             .unwrap()
             .to_string_lossy()

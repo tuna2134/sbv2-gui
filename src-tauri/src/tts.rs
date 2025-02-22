@@ -13,13 +13,14 @@ fn load_model_holder() -> anyhow::Result<TTSModelHolder> {
     fs::create_dir(MODELS_DIR.clone()).ok();
     Ok(TTSModelHolder::new(
         &fs::read(
-            api.model("googlefan/sbv2_onnx_models".to_string())
-                .get("deberta.onnx")?,
+            api.model("neody/sbv2-api-assets".to_string())
+                .get("deberta/deberta.onnx")?,
         )?,
         &fs::read(
-            api.model("googlefan/sbv2_onnx_models".to_string())
-                .get("tokenizer.json")?,
+            api.model("neody/sbv2-api-assets".to_string())
+                .get("deberta/tokenizer.json")?,
         )?,
+        None,
     )?)
 }
 
@@ -66,6 +67,20 @@ pub async fn reload_models() -> Result<(), String> {
             if let Err(e) = lock.load_sbv2file(&entry, sbv2_bytes) {
                 println!("Error loading {entry}: {e}");
             };
+        } else if name.ends_with(".aivmx") {
+            let entry = &name[..name.len() - 6];
+            println!("Try loading: {entry}");
+            let aivmx_bytes = match tfs::read(format!("{models}/{entry}.aivmx")).await {
+                Ok(b) => b,
+                Err(e) => {
+                    println!("Error loading aivmx bytes from file {entry}: {e}");
+                    continue;
+                }
+            };
+            if let Err(e) = lock.load_aivmx(entry, aivmx_bytes) {
+                println!("Error loading {entry}: {e}");
+            }
+            println!("Loaded: {entry}");
         }
     }
     for entry in entries {
@@ -90,23 +105,22 @@ pub async fn reload_models() -> Result<(), String> {
 }
 
 fn synthesize_inner(
-    lock: MutexGuard<TTSModelHolder>,
+    mut lock: MutexGuard<TTSModelHolder>,
     ident: String,
     text: String,
     sdp_ratio: f32,
     length_scale: f32,
 ) -> anyhow::Result<Vec<u8>> {
-    let (bert_ori, phones, tones, lang_ids) = lock.parse_text(&text)?;
-    let style_vector = lock.get_style_vector(&ident, 0, 1.0)?;
-    Ok(lock.synthesize(
-        ident,
-        bert_ori.to_owned(),
-        phones,
-        tones,
-        lang_ids,
-        style_vector,
-        sdp_ratio,
-        length_scale,
+    Ok(lock.easy_synthesize(
+        &ident,
+        &text,
+        0,
+        0,
+        sbv2_core::tts::SynthesizeOptions {
+            sdp_ratio,
+            length_scale,
+            ..Default::default()
+        },
     )?)
 }
 
