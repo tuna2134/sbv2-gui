@@ -7,11 +7,12 @@
 [こちら](https://github.com/tuna2134/sbv2-api/tree/main/convert)を参照してください。
 
 ## HTTP APIを使いたい
-`./models`に.sbv2ファイルおよび[`debert.onnx`](https://huggingface.co/googlefan/sbv2_onnx_models/resolve/main/deberta.onnx?download=true)、[`tokenizer.json`](https://huggingface.co/googlefan/sbv2_onnx_models/resolve/main/tokenizer.json?download=true)を格納した後に、  
+`./models`に.sbv2ファイルおよび[`debert.onnx`](https://huggingface.co/neody/sbv2-api-assets/resolve/main/deberta/deberta.onnx)、[`tokenizer.json`](https://huggingface.co/neody/sbv2-api-assets/resolve/main/deberta/tokenizer.json)を格納した後に、  
 `.env`に
 ```env
 BERT_MODEL_PATH=models/deberta.onnx
 TOKENIZER_PATH=models/tokenizer.json
+HOLDER_MAX_LOADED_MODElS=20
 ```
 を記入し、  
 CPUの場合は
